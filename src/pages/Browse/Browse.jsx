@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import GameCard from '../../components/GameCard/GameCard';
+import GameCard from '../../components/game/GameCard/GameCard';
 import { mockGames } from '../../data/mockGames';
 import './Browse.css';
 

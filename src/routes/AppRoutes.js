@@ -6,9 +6,8 @@ import MainLayout from '../layouts/MainLayout/MainLayout';
 import AuthLayout from '../layouts/AuthLayout/AuthLayout';
 
 // Import Auth Pages
-import Login from '../pages/Auth/Login';
-import Register from '../pages/Auth/Register';
-import RecoverPassword from '../pages/Auth/RecoverPassword';
+import Login from '../pages/Login/Login';
+import Register from '../pages/Register/Register';
 
 // Import Main Pages
 import Home from '../pages/Home/Home';
@@ -26,17 +25,18 @@ function AppRoutes() {
         <Route element={<AuthLayout />}>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/recover-password" element={<RecoverPassword />} />
         </Route>
 
         {/* Main Routes - With Navigation and Footer */}
         <Route element={<MainLayout />}>
           <Route path="/" element={<Home />} />
           <Route path="/browse" element={<Browse />} />
+          <Route path="/games" element={<Browse />} />
           <Route path="/game/:id" element={<GameDetail />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/wishlist" element={<Wishlist />} />
           <Route path="/owned-games" element={<OwnedGames />} />
+          <Route path="/library" element={<OwnedGames />} />
         </Route>
 
         {/* Redirect unknown routes to home */}

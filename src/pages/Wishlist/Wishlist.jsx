@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import GameCard from '../../components/GameCard/GameCard';
+import GameCard from '../../components/game/GameCard/GameCard';
 import { mockGames } from '../../data/mockGames';
 import './Wishlist.css';
 
@@ -58,22 +58,6 @@ const WishlistPage = () => {
         <div className="header-content">
           <h1>My Wishlist</h1>
           <p>Games you've saved for later</p>
-        </div>
-        <div className="wishlist-stats">
-          <div className="stat-item">
-            <span className="stat-number">{wishlistItems.length}</span>
-            <span className="stat-label">Games</span>
-          </div>
-          <div className="stat-item">
-            <span className="stat-number">${totalValue.toFixed(2)}</span>
-            <span className="stat-label">Total Value</span>
-          </div>
-          {totalSavings > 0 && (
-            <div className="stat-item savings">
-              <span className="stat-number">-${totalSavings.toFixed(2)}</span>
-              <span className="stat-label">Total Savings</span>
-            </div>
-          )}
         </div>
       </div>
 

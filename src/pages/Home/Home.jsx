@@ -1,5 +1,5 @@
 import React from 'react';
-import GameCard from '../../components/game/GameCard';
+import GameCard from '../../components/game/GameCard/GameCard';
 import { mockGames } from '../../data/mockGames';
 import './Home.css';
 

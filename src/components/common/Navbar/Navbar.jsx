@@ -37,15 +37,7 @@ const Navbar = () => {
 					<a href="/games" className="nav-link">
 						Games
 					</a>
-					<a href="/categories" className="nav-link">
-						Categories
-					</a>
-					<a href="/deals" className="nav-link nav-deals">
-						Deals
-					</a>
-					<a href="/new" className="nav-link">
-						New Releases
-					</a>
+					
 				</div>
 
 				{/* User Actions */}
@@ -78,35 +70,6 @@ const Navbar = () => {
 				</button>
 			</div>
 
-			{/* Categories Dropdown (Optional) */}
-			<div className="nav-categories">
-				<div className="categories-container">
-					<a href="/category/action" className="category-link">
-						Action
-					</a>
-					<a href="/category/rpg" className="category-link">
-						RPG
-					</a>
-					<a href="/category/sports" className="category-link">
-						Sports
-					</a>
-					<a href="/category/strategy" className="category-link">
-						Strategy
-					</a>
-					<a href="/category/adventure" className="category-link">
-						Adventure
-					</a>
-					<a href="/category/indie" className="category-link">
-						Indie
-					</a>
-					<a href="/category/shooter" className="category-link">
-						Shooter
-					</a>
-					<a href="/category/racing" className="category-link">
-						Racing
-					</a>
-				</div>
-			</div>
 		</nav>
 	);
 };

@@ -11,12 +11,6 @@ const Footer = () => {
           <p className="footer-description">
             Your ultimate destination for digital games. Discover, purchase, and enjoy the latest games across all platforms.
           </p>
-          <div className="social-links">
-            <a href="#" className="social-link">Facebook</a>
-            <a href="#" className="social-link">Twitter</a>
-            <a href="#" className="social-link">Instagram</a>
-            <a href="#" className="social-link">Discord</a>
-          </div>
         </div>
 
         {/* Quick Links */}
@@ -25,9 +19,6 @@ const Footer = () => {
           <ul className="footer-links">
             <li><a href="/">Home</a></li>
             <li><a href="/games">All Games</a></li>
-            <li><a href="/categories">Categories</a></li>
-            <li><a href="/deals">Special Deals</a></li>
-            <li><a href="/new-releases">New Releases</a></li>
           </ul>
         </div>
 
@@ -54,19 +45,6 @@ const Footer = () => {
           </ul>
         </div>
 
-        {/* Newsletter */}
-        <div className="footer-section">
-          <h4>Stay Updated</h4>
-          <p>Get the latest news about new games and exclusive offers.</p>
-          <div className="newsletter-form">
-            <input 
-              type="email" 
-              placeholder="Enter your email" 
-              className="newsletter-input"
-            />
-            <button className="newsletter-btn">Subscribe</button>
-          </div>
-        </div>
       </div>
 
       {/* Bottom Bar */}

@@ -78,20 +78,7 @@ const OwnedGamesPage = () => {
           <h1>My Games Library</h1>
           <p>Your purchased games and download manager</p>
         </div>
-        <div className="library-stats">
-          <div className="stat-item">
-            <span className="stat-number">{ownedGames.length}</span>
-            <span className="stat-label">Total Games</span>
-          </div>
-          <div className="stat-item">
-            <span className="stat-number">{installedCount}</span>
-            <span className="stat-label">Installed</span>
-          </div>
-          <div className="stat-item">
-            <span className="stat-number">{totalPlayTime}h</span>
-            <span className="stat-label">Play Time</span>
-          </div>
-        </div>
+        
       </div>
 
       {/* Controls Bar */}

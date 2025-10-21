@@ -1,196 +1,114 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import './Navbar.css';
+import React, { useState } from "react";
+import "./Navbar.css";
 
-function Navbar() {
-  const [showNotifications, setShowNotifications] = useState(false);
-  const [showCart, setShowCart] = useState(false);
-  const [showUserMenu, setShowUserMenu] = useState(false);
+const Navbar = () => {
+	const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  // Mock data for notifications
-  const notifications = [
-    { id: 1, message: "New game added to your wishlist is on sale!", time: "2 hours ago" },
-    { id: 2, message: "Your friend sent you a game recommendation", time: "5 hours ago" },
-    { id: 3, message: "Cyberpunk 2077 has a new update", time: "1 day ago" }
-  ];
+	const toggleMenu = () => {
+		setIsMenuOpen(!isMenuOpen);
+	};
 
-  // Mock data for cart
-  const cartItems = [
-    { id: 1, title: "The Witcher 3", price: 29.99, image: "https://via.placeholder.com/60x80" },
-    { id: 2, title: "Red Dead Redemption 2", price: 39.99, image: "https://via.placeholder.com/60x80" }
-  ];
+	return (
+		<nav className="navbar">
+			<div className="nav-container">
+				{/* Logo */}
+				<div className="nav-logo">
+					<a href="/" className="logo-link">
+						<span className="logo-icon">🎮</span>
+						GameStore
+					</a>
+				</div>
 
-  const cartTotal = cartItems.reduce((total, item) => total + item.price, 0);
+				{/* Search Bar */}
+				<div className="nav-search">
+					<input
+						type="text"
+						placeholder="Search games..."
+						className="search-input"
+					/>
+					<button className="search-btn">🔍</button>
+				</div>
 
-  return (
-    <nav className="navbar">
-      <div className="navbar-container">
-        {/* Left Section - Home & Browse */}
-        <div className="navbar-left">
-          <Link to="/" className="navbar-link">
-            <span className="icon">🏠</span>
-            Home
-          </Link>
-          <Link to="/browse" className="navbar-link">
-            <span className="icon">🎮</span>
-            Browse
-          </Link>
-        </div>
+				{/* Navigation Links */}
+				<div className={`nav-links ${isMenuOpen ? "nav-links-active" : ""}`}>
+					<a href="/" className="nav-link">
+						Home
+					</a>
+					<a href="/games" className="nav-link">
+						Games
+					</a>
+					<a href="/categories" className="nav-link">
+						Categories
+					</a>
+					<a href="/deals" className="nav-link nav-deals">
+						Deals
+					</a>
+					<a href="/new" className="nav-link">
+						New Releases
+					</a>
+				</div>
 
-        {/* Center Section - Search Bar */}
-        <div className="navbar-center">
-          <div className="search-bar">
-            <input 
-              type="text" 
-              placeholder="Search for games..." 
-              className="search-input"
-            />
-            <button className="search-button">
-              <span className="icon">🔍</span>
-            </button>
-          </div>
-        </div>
+				{/* User Actions */}
+				
+<div className="nav-actions">
+  <a href="/library" className="nav-action-btn">
+    <span className="action-icon">📚</span>
+    <span className="action-text">My Games</span>
+  </a>
+  <a href="/wishlist" className="nav-action-btn">
+    <span className="action-icon">❤️</span>
+    <span className="action-text">Wishlist</span>
+  </a>
+  <a href="/login" className="nav-action-btn">
+    <span className="action-icon">👤</span>
+    <span className="action-text">Login</span>
+  </a>
+  <button className="nav-action-btn cart-btn">
+    <span className="action-icon">🛒</span>
+    <span className="action-text">Cart</span>
+    <span className="cart-count">0</span>
+  </button>
+</div>
 
-        {/* Right Section - Icons */}
-        <div className="navbar-right">
-          {/* Notifications */}
-          <div className="navbar-icon-container">
-            <button 
-              className="navbar-icon-button"
-              onClick={() => {
-                setShowNotifications(!showNotifications);
-                setShowCart(false);
-                setShowUserMenu(false);
-              }}
-            >
-              <span className="icon">🔔</span>
-              <span className="badge">3</span>
-            </button>
+				{/* Mobile Menu Button */}
+				<button className="mobile-menu-btn" onClick={toggleMenu}>
+					<span></span>
+					<span></span>
+					<span></span>
+				</button>
+			</div>
 
-            {showNotifications && (
-              <div className="dropdown-menu notifications-menu">
-                <div className="dropdown-header">
-                  <h3>Notifications</h3>
-                </div>
-                <div className="dropdown-content">
-                  {notifications.map(notif => (
-                    <div key={notif.id} className="notification-item">
-                      <p className="notification-message">{notif.message}</p>
-                      <span className="notification-time">{notif.time}</span>
-                    </div>
-                  ))}
-                </div>
-                <div className="dropdown-footer">
-                  <button className="view-all-btn">View All Notifications</button>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Shopping Cart */}
-          <div className="navbar-icon-container">
-            <button 
-              className="navbar-icon-button"
-              onClick={() => {
-                setShowCart(!showCart);
-                setShowNotifications(false);
-                setShowUserMenu(false);
-              }}
-            >
-              <span className="icon">🛒</span>
-              <span className="badge">{cartItems.length}</span>
-            </button>
-
-            {showCart && (
-              <div className="dropdown-menu cart-menu">
-                <div className="dropdown-header">
-                  <h3>Shopping Cart</h3>
-                </div>
-                <div className="dropdown-content">
-                  {cartItems.length > 0 ? (
-                    <>
-                      {cartItems.map(item => (
-                        <div key={item.id} className="cart-item">
-                          <img src={item.image} alt={item.title} className="cart-item-image" />
-                          <div className="cart-item-info">
-                            <h4>{item.title}</h4>
-                            <p className="cart-item-price">${item.price}</p>
-                          </div>
-                          <button className="remove-btn">✕</button>
-                        </div>
-                      ))}
-                      <div className="cart-total">
-                        <span>Total:</span>
-                        <span className="total-price">${cartTotal.toFixed(2)}</span>
-                      </div>
-                    </>
-                  ) : (
-                    <p className="empty-message">Your cart is empty</p>
-                  )}
-                </div>
-                <div className="dropdown-footer">
-                  <button className="checkout-btn">Proceed to Checkout</button>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* User Menu */}
-          <div className="navbar-icon-container">
-            <button 
-              className="navbar-icon-button user-button"
-              onClick={() => {
-                setShowUserMenu(!showUserMenu);
-                setShowNotifications(false);
-                setShowCart(false);
-              }}
-            >
-              <span className="icon">👤</span>
-            </button>
-
-            {showUserMenu && (
-              <div className="dropdown-menu user-menu">
-                <div className="dropdown-header user-header">
-                  <div className="user-avatar">👤</div>
-                  <div className="user-info">
-                    <h3>John Doe</h3>
-                    <p>john.doe@email.com</p>
-                  </div>
-                </div>
-                <div className="dropdown-content">
-                  <Link to="/owned-games" className="user-menu-item">
-                    <span className="icon">📚</span>
-                    My Games
-                  </Link>
-                  <Link to="/wishlist" className="user-menu-item">
-                    <span className="icon">❤️</span>
-                    Wishlist
-                  </Link>
-                  <Link to="/settings" className="user-menu-item">
-                    <span className="icon">⚙️</span>
-                    Settings
-                  </Link>
-                  <div className="user-stats">
-                    <div className="stat-item">
-                      <span className="stat-value">42</span>
-                      <span className="stat-label">Games Owned</span>
-                    </div>
-                    <div className="stat-item">
-                      <span className="stat-value">8</span>
-                      <span className="stat-label">Wishlist</span>
-                    </div>
-                  </div>
-                </div>
-                <div className="dropdown-footer">
-                  <button className="logout-btn">Logout</button>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-    </nav>
-  );
-}
+			{/* Categories Dropdown (Optional) */}
+			<div className="nav-categories">
+				<div className="categories-container">
+					<a href="/category/action" className="category-link">
+						Action
+					</a>
+					<a href="/category/rpg" className="category-link">
+						RPG
+					</a>
+					<a href="/category/sports" className="category-link">
+						Sports
+					</a>
+					<a href="/category/strategy" className="category-link">
+						Strategy
+					</a>
+					<a href="/category/adventure" className="category-link">
+						Adventure
+					</a>
+					<a href="/category/indie" className="category-link">
+						Indie
+					</a>
+					<a href="/category/shooter" className="category-link">
+						Shooter
+					</a>
+					<a href="/category/racing" className="category-link">
+						Racing
+					</a>
+				</div>
+			</div>
+		</nav>
+	);
+};
 
 export default Navbar;

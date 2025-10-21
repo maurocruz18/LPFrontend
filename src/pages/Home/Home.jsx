@@ -1,7 +1,7 @@
 import React from 'react';
 import GameCard from '../../components/game/GameCard';
 import { mockGames } from '../../data/mockGames';
-import './HomePage.css';
+import './Home.css';
 
 const HomePage = () => {
   const featuredGames = mockGames.slice(0, 4);

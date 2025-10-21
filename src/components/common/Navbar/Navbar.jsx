@@ -49,26 +49,26 @@ const Navbar = () => {
 				</div>
 
 				{/* User Actions */}
-				
-<div className="nav-actions">
-  <a href="/library" className="nav-action-btn">
-    <span className="action-icon">📚</span>
-    <span className="action-text">My Games</span>
-  </a>
-  <a href="/wishlist" className="nav-action-btn">
-    <span className="action-icon">❤️</span>
-    <span className="action-text">Wishlist</span>
-  </a>
-  <a href="/login" className="nav-action-btn">
-    <span className="action-icon">👤</span>
-    <span className="action-text">Login</span>
-  </a>
-  <button className="nav-action-btn cart-btn">
-    <span className="action-icon">🛒</span>
-    <span className="action-text">Cart</span>
-    <span className="cart-count">0</span>
-  </button>
-</div>
+
+				<div className="nav-actions">
+					<a href="/library" className="nav-action-btn">
+						<span className="action-icon">📚</span>
+						<span className="action-text">My Games</span>
+					</a>
+					<a href="/wishlist" className="nav-action-btn">
+						<span className="action-icon">❤️</span>
+						<span className="action-text">Wishlist</span>
+					</a>
+					<a href="/login" className="nav-action-btn">
+						<span className="action-icon">👤</span>
+						<span className="action-text">Login</span>
+					</a>
+					<button className="nav-action-btn cart-btn">
+						<span className="action-icon">🛒</span>
+						<span className="action-text">Cart</span>
+						<span className="cart-count">0</span>
+					</button>
+				</div>
 
 				{/* Mobile Menu Button */}
 				<button className="mobile-menu-btn" onClick={toggleMenu}>

@@ -12,6 +12,7 @@ import LoginPage from './pages/Login/Login';
 import RegisterPage from './pages/Register/Register';
 import WishlistPage from './pages/Wishlist/Wishlist ';
 import OwnedGamesPage from './pages/OwnedGames/OwnedGames';
+import SettingsPage from './pages/Settings/Settings';
 
 function App() {
   return (
@@ -27,6 +28,7 @@ function App() {
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/wishlist" element={<WishlistPage />} />
             <Route path="/library" element={<OwnedGamesPage />} />
+            <Route path="/settings" element={<SettingsPage />} />
           </Routes>
         </main>
         <Footer />

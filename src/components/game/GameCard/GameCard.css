@@ -1,0 +1,108 @@
+/* src/components/GameCard/GameCard.css */
+.game-card {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    overflow: hidden;
+    transition: transform 0.3s ease;
+    cursor: pointer;
+  }
+  
+  .game-card:hover {
+    transform: translateY(-4px);
+  }
+  
+  .game-image {
+    position: relative;
+    height: 200px;
+    overflow: hidden;
+  }
+  
+  .game-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  .discount-badge {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: #ff4444;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: bold;
+  }
+  
+  .game-info {
+    padding: 16px;
+  }
+  
+  .game-title {
+    font-size: 16px;
+    font-weight: bold;
+    margin: 0 0 8px 0;
+    color: #333;
+  }
+  
+  .game-genre {
+    color: #666;
+    font-size: 14px;
+    margin: 0 0 8px 0;
+  }
+  
+  .game-platforms {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 12px;
+  }
+  
+  .platform-icon {
+    background: #f0f0f0;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 10px;
+    color: #666;
+  }
+  
+  .game-price {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  
+  .original-price {
+    text-decoration: line-through;
+    color: #999;
+    font-size: 14px;
+  }
+  
+  .discounted-price {
+    color: #ff4444;
+    font-weight: bold;
+    font-size: 18px;
+  }
+  
+  .price {
+    font-weight: bold;
+    font-size: 18px;
+    color: #333;
+  }
+  
+  .add-to-cart-btn {
+    width: 100%;
+    padding: 8px 16px;
+    background: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+  }
+  
+  .add-to-cart-btn:hover {
+    background: #0056b3;
+  }

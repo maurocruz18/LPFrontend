@@ -1,6 +1,6 @@
 import React from 'react';
 import { Outlet } from 'react-router-dom';
-import Header from '../../components/common/Header/Header';
+import Header from '../../components/common/Navbar/Header';
 import Navbar from '../../components/common/Navbar/Navbar';
 import Footer from '../../components/common/Footer/Footer';
 import './MainLayout.css';

@@ -1,0 +1,55 @@
+.homepage {
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  
+  .hero-section {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 80px 20px;
+    text-align: center;
+    border-radius: 8px;
+    margin-bottom: 40px;
+  }
+  
+  .hero-content h1 {
+    font-size: 3rem;
+    margin-bottom: 16px;
+  }
+  
+  .hero-content p {
+    font-size: 1.2rem;
+    margin-bottom: 24px;
+  }
+  
+  .cta-button {
+    background: #ff6b6b;
+    color: white;
+    padding: 12px 32px;
+    border: none;
+    border-radius: 25px;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: background 0.3s ease;
+  }
+  
+  .cta-button:hover {
+    background: #ff5252;
+  }
+  
+  .featured-section, .sale-section {
+    margin-bottom: 40px;
+  }
+  
+  .featured-section h2, .sale-section h2 {
+    font-size: 2rem;
+    margin-bottom: 20px;
+    color: #333;
+  }
+  
+  .games-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+  }

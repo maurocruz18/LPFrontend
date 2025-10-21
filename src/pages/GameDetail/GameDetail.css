@@ -1,0 +1,440 @@
+
+.game-details-page {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  
+  /* Breadcrumb */
+  .breadcrumb {
+    margin-bottom: 30px;
+    font-size: 14px;
+    color: #666;
+  }
+  
+  .breadcrumb a {
+    color: #007bff;
+    text-decoration: none;
+  }
+  
+  .breadcrumb a:hover {
+    text-decoration: underline;
+  }
+  
+  .breadcrumb span {
+    color: #333;
+    font-weight: 500;
+  }
+  
+  /* Game Not Found */
+  .game-not-found {
+    text-align: center;
+    padding: 60px 20px;
+    font-size: 18px;
+    color: #666;
+  }
+  
+  /* Main Container */
+  .game-details-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    margin-bottom: 40px;
+  }
+  
+  /* Images Section */
+  .game-images {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .main-image {
+    width: 100%;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+  
+  .main-image img {
+    width: 100%;
+    height: 400px;
+    object-fit: cover;
+    display: block;
+  }
+  
+  .image-thumbnails {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+  }
+  
+  .image-thumbnails img {
+    width: 80px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 4px;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+  }
+  
+  .image-thumbnails img:hover {
+    border-color: #007bff;
+  }
+  
+  .image-thumbnails img.active {
+    border-color: #007bff;
+    transform: scale(1.05);
+  }
+  
+  /* Game Info Section */
+  .game-info {
+    padding: 20px 0;
+  }
+  
+  .game-title {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #333;
+    margin: 0 0 16px 0;
+    line-height: 1.2;
+  }
+  
+  .game-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #eee;
+  }
+  
+  .developer {
+    color: #666;
+    font-size: 16px;
+  }
+  
+  .rating {
+    color: #ffc107;
+    font-size: 18px;
+  }
+  
+  .rating span {
+    color: #666;
+    font-size: 14px;
+    margin-left: 8px;
+  }
+  
+  .platforms {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 25px;
+  }
+  
+  .platform-tag {
+    background: #f8f9fa;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+    color: #495057;
+    border: 1px solid #dee2e6;
+  }
+  
+  /* Purchase Section */
+  .purchase-section {
+    background: #f8f9fa;
+    padding: 25px;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+  }
+  
+  .price-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 20px;
+  }
+  
+  .original-price {
+    font-size: 18px;
+    color: #999;
+    text-decoration: line-through;
+  }
+  
+  .discounted-price {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #dc3545;
+  }
+  
+  .price {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #333;
+  }
+  
+  .discount-badge {
+    background: #dc3545;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: bold;
+  }
+  
+  .quantity-selector {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 20px;
+  }
+  
+  .quantity-selector label {
+    font-weight: 500;
+    color: #333;
+  }
+  
+  .quantity-controls {
+    display: flex;
+    align-items: center;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  
+  .quantity-controls button {
+    background: #f8f9fa;
+    border: none;
+    padding: 8px 12px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    transition: background 0.3s ease;
+  }
+  
+  .quantity-controls button:hover {
+    background: #e9ecef;
+  }
+  
+  .quantity-controls span {
+    padding: 8px 16px;
+    background: white;
+    min-width: 50px;
+    text-align: center;
+    font-weight: 500;
+  }
+  
+  .purchase-buttons {
+    display: flex;
+    gap: 15px;
+  }
+  
+  .add-to-cart-btn, .buy-now-btn {
+    flex: 1;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  
+  .add-to-cart-btn {
+    background: #007bff;
+    color: white;
+  }
+  
+  .add-to-cart-btn:hover {
+    background: #0056b3;
+    transform: translateY(-2px);
+  }
+  
+  .buy-now-btn {
+    background: #28a745;
+    color: white;
+  }
+  
+  .buy-now-btn:hover {
+    background: #1e7e34;
+    transform: translateY(-2px);
+  }
+  
+  /* Tabs Section */
+  .tabs-section {
+    margin-top: 40px;
+  }
+  
+  .tabs-header {
+    display: flex;
+    border-bottom: 1px solid #dee2e6;
+    margin-bottom: 25px;
+  }
+  
+  .tabs-header button {
+    background: none;
+    border: none;
+    padding: 15px 30px;
+    font-size: 16px;
+    font-weight: 500;
+    color: #666;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    transition: all 0.3s ease;
+  }
+  
+  .tabs-header button:hover {
+    color: #007bff;
+  }
+  
+  .tabs-header button.active {
+    color: #007bff;
+    border-bottom-color: #007bff;
+  }
+  
+  .tab-content {
+    padding: 20px 0;
+  }
+  
+  .tab-content p {
+    line-height: 1.6;
+    color: #555;
+    margin-bottom: 20px;
+    font-size: 16px;
+  }
+  
+  /* Game Details Info */
+  .game-details-info {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 15px;
+    margin-top: 20px;
+  }
+  
+  .detail-item {
+    padding: 12px 0;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  
+  .detail-item strong {
+    color: #333;
+    margin-right: 8px;
+  }
+  
+  /* Features List */
+  .features-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  
+  .feature-tag {
+    background: #e7f3ff;
+    color: #007bff;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 500;
+    border: 1px solid #b3d9ff;
+  }
+  
+  /* Requirements Section */
+  .requirements-section h4 {
+    color: #333;
+    margin: 25px 0 15px 0;
+    font-size: 18px;
+  }
+  
+  .requirements-section h4:first-child {
+    margin-top: 0;
+  }
+  
+  .requirements-list {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 6px;
+    border-left: 4px solid #007bff;
+  }
+  
+  .requirements-list div {
+    margin-bottom: 8px;
+    line-height: 1.5;
+  }
+  
+  .requirements-list div:last-child {
+    margin-bottom: 0;
+  }
+  
+  .requirements-list strong {
+    color: #333;
+    min-width: 100px;
+    display: inline-block;
+  }
+  
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .game-details-container {
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+    
+    .game-title {
+      font-size: 2rem;
+    }
+    
+    .purchase-buttons {
+      flex-direction: column;
+    }
+    
+    .tabs-header {
+      flex-direction: column;
+    }
+    
+    .tabs-header button {
+      text-align: left;
+      border-bottom: 1px solid #dee2e6;
+      border-left: 3px solid transparent;
+    }
+    
+    .tabs-header button.active {
+      border-left-color: #007bff;
+      border-bottom-color: #dee2e6;
+    }
+    
+    .image-thumbnails {
+      flex-wrap: wrap;
+    }
+    
+    .main-image img {
+      height: 300px;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .game-details-page {
+      padding: 10px;
+    }
+    
+    .game-title {
+      font-size: 1.5rem;
+    }
+    
+    .purchase-section {
+      padding: 15px;
+    }
+    
+    .price-info {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 8px;
+    }
+    
+    .game-meta {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 10px;
+    }
+  }

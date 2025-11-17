@@ -1,20 +1,24 @@
-// src/pages/RegisterPage/RegisterPage.js
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
+import useAuth from '../../hooks/useAuth';
 import AuthPage from '../Auth/Auth';
 import './Register.css';
 
 const RegisterPage = () => {
+  const { register } = useAuth();
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    username: '',
+    name: '',
     email: '',
     password: '',
     confirmPassword: '',
+    dateOfBirth: '',
     agreeToTerms: false,
     newsletter: true
   });
 
   const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -23,7 +27,6 @@ const RegisterPage = () => {
       [name]: type === 'checkbox' ? checked : value
     }));
 
-    // Clear error when user starts typing
     if (errors[name]) {
       setErrors(prev => ({
         ...prev,
@@ -35,10 +38,10 @@ const RegisterPage = () => {
   const validateForm = () => {
     const newErrors = {};
 
-    if (!formData.username.trim()) {
-      newErrors.username = 'Username is required';
-    } else if (formData.username.length < 3) {
-      newErrors.username = 'Username must be at least 3 characters';
+    if (!formData.name.trim()) {
+      newErrors.name = 'Name is required';
+    } else if (formData.name.length < 3) {
+      newErrors.name = 'Name must be at least 3 characters';
     }
 
     if (!formData.email) {
@@ -57,6 +60,10 @@ const RegisterPage = () => {
       newErrors.confirmPassword = 'Passwords do not match';
     }
 
+    if (!formData.dateOfBirth) {
+      newErrors.dateOfBirth = 'Date of birth is required';
+    }
+
     if (!formData.agreeToTerms) {
       newErrors.agreeToTerms = 'You must agree to the terms and conditions';
     }
@@ -64,14 +71,27 @@ const RegisterPage = () => {
     return newErrors;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const newErrors = validateForm();
 
     if (Object.keys(newErrors).length === 0) {
-      // For now, just log the data. Backend integration will come later.
-      console.log('Registration attempt:', formData);
-      alert('Registration functionality will be implemented with backend integration');
+      setLoading(true);
+      try {
+        await register(
+          formData.name,
+          formData.email,
+          formData.password,
+          formData.dateOfBirth
+        );
+        navigate('/');
+      } catch (err) {
+        setErrors({ 
+          submit: err.response?.data?.message || 'Error registering' 
+        });
+      } finally {
+        setLoading(false);
+      }
     } else {
       setErrors(newErrors);
     }
@@ -83,21 +103,34 @@ const RegisterPage = () => {
       subtitle="Create your account and start gaming"
     >
       <form className="auth-form" onSubmit={handleSubmit}>
+        {errors.submit && (
+          <div style={{
+            background: '#f8d7da',
+            color: '#721c24',
+            padding: '12px 16px',
+            borderRadius: '4px',
+            marginBottom: '20px',
+            fontSize: '14px'
+          }}>
+            {errors.submit}
+          </div>
+        )}
+
         <div className="form-group">
-          <label htmlFor="username" className="form-label">
-            Username
+          <label htmlFor="name" className="form-label">
+            Full Name
           </label>
           <input
             type="text"
-            id="username"
-            name="username"
-            value={formData.username}
+            id="name"
+            name="name"
+            value={formData.name}
             onChange={handleChange}
-            className={`form-input ${errors.username ? 'error' : ''}`}
-            placeholder="Choose a username"
+            className={`form-input ${errors.name ? 'error' : ''}`}
+            placeholder="Enter your full name"
             required
           />
-          {errors.username && <span className="error-message">{errors.username}</span>}
+          {errors.name && <span className="error-message">{errors.name}</span>}
         </div>
 
         <div className="form-group">
@@ -115,6 +148,22 @@ const RegisterPage = () => {
             required
           />
           {errors.email && <span className="error-message">{errors.email}</span>}
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="dateOfBirth" className="form-label">
+            Date of Birth
+          </label>
+          <input
+            type="date"
+            id="dateOfBirth"
+            name="dateOfBirth"
+            value={formData.dateOfBirth}
+            onChange={handleChange}
+            className={`form-input ${errors.dateOfBirth ? 'error' : ''}`}
+            required
+          />
+          {errors.dateOfBirth && <span className="error-message">{errors.dateOfBirth}</span>}
         </div>
 
         <div className="form-group">
@@ -159,7 +208,7 @@ const RegisterPage = () => {
               checked={formData.agreeToTerms}
               onChange={handleChange}
             />
-            I agree to the <Link to="/terms" className="inline-link">Terms of Service</Link> and <Link to="/privacy" className="inline-link">Privacy Policy</Link>
+            I agree to the <Link to="/terms" className="inline-link">Terms of Service</Link>
           </label>
           {errors.agreeToTerms && <span className="error-message">{errors.agreeToTerms}</span>}
         </div>
@@ -176,8 +225,12 @@ const RegisterPage = () => {
           </label>
         </div>
 
-        <button type="submit" className="auth-button primary">
-          Create Account
+        <button 
+          type="submit" 
+          className="auth-button primary"
+          disabled={loading}
+        >
+          {loading ? 'Creating Account...' : 'Create Account'}
         </button>
 
         <div className="auth-divider">

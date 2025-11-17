@@ -1,15 +1,19 @@
-// src/pages/LoginPage/LoginPage.js
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
+import useAuth from '../../hooks/useAuth';
 import AuthPage from '../Auth/Auth';
 import './Login.css';
 
 const LoginPage = () => {
+  const { login } = useAuth();
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
     rememberMe: false
   });
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -17,13 +21,22 @@ const LoginPage = () => {
       ...prev,
       [name]: type === 'checkbox' ? checked : value
     }));
+    setError('');
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // For now, just log the data. Backend integration will come later.
-    console.log('Login attempt:', formData);
-    alert('Login functionality will be implemented with backend integration');
+    setLoading(true);
+    setError('');
+    
+    try {
+      await login(formData.email, formData.password);
+      navigate('/');
+    } catch (err) {
+      setError(err.response?.data?.message || 'Erro ao fazer login');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -32,6 +45,19 @@ const LoginPage = () => {
       subtitle="Sign in to your GameStore account"
     >
       <form className="auth-form" onSubmit={handleSubmit}>
+        {error && (
+          <div style={{
+            background: '#f8d7da',
+            color: '#721c24',
+            padding: '12px 16px',
+            borderRadius: '4px',
+            marginBottom: '20px',
+            fontSize: '14px'
+          }}>
+            {error}
+          </div>
+        )}
+
         <div className="form-group">
           <label htmlFor="email" className="form-label">
             Email Address
@@ -79,8 +105,12 @@ const LoginPage = () => {
           </Link>
         </div>
 
-        <button type="submit" className="auth-button primary">
-          Sign In
+        <button 
+          type="submit" 
+          className="auth-button primary"
+          disabled={loading}
+        >
+          {loading ? 'Signing In...' : 'Sign In'}
         </button>
 
         <div className="auth-divider">

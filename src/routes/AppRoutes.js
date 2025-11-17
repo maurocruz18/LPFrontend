@@ -17,6 +17,9 @@ import Settings from '../pages/Settings/Settings';
 import Wishlist from '../pages/Wishlist/Wishlist';
 import OwnedGames from '../pages/OwnedGames/OwnedGames';
 
+// Import Protected Route
+import ProtectedRoute from './ProtectedRoute';
+
 function AppRoutes() {
   return (
     <Router>
@@ -33,10 +36,40 @@ function AppRoutes() {
           <Route path="/browse" element={<Browse />} />
           <Route path="/games" element={<Browse />} />
           <Route path="/game/:id" element={<GameDetail />} />
-          <Route path="/settings" element={<Settings />} />
-          <Route path="/wishlist" element={<Wishlist />} />
-          <Route path="/owned-games" element={<OwnedGames />} />
-          <Route path="/library" element={<OwnedGames />} />
+          
+          {/* Protected Routes */}
+          <Route 
+            path="/settings" 
+            element={
+              <ProtectedRoute>
+                <Settings />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/wishlist" 
+            element={
+              <ProtectedRoute>
+                <Wishlist />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/owned-games" 
+            element={
+              <ProtectedRoute>
+                <OwnedGames />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/library" 
+            element={
+              <ProtectedRoute>
+                <OwnedGames />
+              </ProtectedRoute>
+            } 
+          />
         </Route>
 
         {/* Redirect unknown routes to home */}

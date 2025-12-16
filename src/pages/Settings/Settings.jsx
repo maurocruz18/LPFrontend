@@ -108,6 +108,23 @@ const SettingsPage = () => {
     }
   };
 
+  // Handle Settings Toggle for Explicit Content
+  const handleToggleExplicitContent = async () => {
+    const newExplicitContentState = !settings.showExplicitContent;
+    setSaving(true);
+    setMessage({ type: '', text: '' });
+
+    try {
+      await updateSettings({ showExplicitContent: newExplicitContentState }); // Pass an object as expected by the service
+      setSettings(prev => ({ ...prev, showExplicitContent: newExplicitContentState }));
+      setMessage({ type: 'success', text: 'Configuração de conteúdo explícito atualizada!' });
+    } catch (err) {
+      setMessage({ type: 'error', text: err.response?.data?.message || 'Erro ao atualizar configuração de conteúdo explícito' });
+    } finally {
+      setSaving(false);
+    }
+  };
+
   return (
     <div className="settings-page">
       <div className="settings-header">
@@ -223,6 +240,29 @@ const SettingsPage = () => {
                 </button>
               </div>
             </form>
+          </div>
+
+          {/* Display Settings Section */}
+          <div className="settings-section">
+            <h2>Configurações de Exibição</h2>
+            <p className="section-description">Gerencie suas preferências de conteúdo</p>
+
+            <div className="toggle-group">
+              <div className="toggle-item">
+                <div className="toggle-info">
+                  <h3>Conteúdo Explícito</h3>
+                  <p>Ativar ou desativar a exibição de conteúdo explícito.</p>
+                </div>
+                <button
+                  type="button"
+                  className={`toggle-button ${settings.showExplicitContent ? 'active' : ''}`}
+                  onClick={handleToggleExplicitContent}
+                  disabled={saving}
+                >
+                  <span className="toggle-slider"></span>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>

@@ -26,6 +26,10 @@ const authService = {
     return api.put('/auth/profile', { currentPassword, newPassword });
   },
 
+  updateSettings: (settingsData) => {
+    return api.put('/auth/settings', settingsData);
+  },
+
   logout: () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');

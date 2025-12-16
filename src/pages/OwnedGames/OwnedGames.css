@@ -487,3 +487,286 @@
       flex-direction: column;
     }
   }
+
+  /* Add these styles to your existing OwnedGames.css file */
+
+/* Rating Modal Overlay */
+.rating-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3000;
+  padding: 20px;
+}
+
+.rating-modal {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  max-width: 500px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 25px;
+  border-bottom: 1px solid #e9ecef;
+  background: #f8f9fa;
+}
+
+.modal-header h2 {
+  margin: 0;
+  color: #2c3e50;
+  font-size: 1.3rem;
+}
+
+.modal-close-btn {
+  background: none;
+  border: none;
+  font-size: 2rem;
+  color: #6c757d;
+  cursor: pointer;
+  padding: 0;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.modal-close-btn:hover {
+  color: #2c3e50;
+  background: #e9ecef;
+  border-radius: 50%;
+}
+
+.modal-body {
+  padding: 30px 25px;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.rating-section,
+.comment-section {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.rating-section label,
+.comment-section label {
+  font-weight: 600;
+  color: #2c3e50;
+  font-size: 1rem;
+}
+
+.star-rating {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-start;
+}
+
+.star-btn {
+  background: none;
+  border: 2px solid #e9ecef;
+  padding: 8px 12px;
+  font-size: 1.8rem;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  color: #d4a574;
+}
+
+.star-btn:hover {
+  border-color: #f39c12;
+  background: #fffbf0;
+  transform: scale(1.1);
+}
+
+.star-btn.active {
+  background: #f39c12;
+  border-color: #f39c12;
+  color: white;
+  box-shadow: 0 4px 12px rgba(243, 156, 18, 0.3);
+}
+
+.star-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.comment-textarea {
+  padding: 12px 16px;
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 0.95rem;
+  color: #2c3e50;
+  resize: vertical;
+  transition: all 0.3s ease;
+}
+
+.comment-textarea:focus {
+  outline: none;
+  border-color: #3498db;
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+.comment-textarea::placeholder {
+  color: #bdc3c7;
+}
+
+.comment-textarea:disabled {
+  opacity: 0.6;
+  background: #f8f9fa;
+  cursor: not-allowed;
+}
+
+.modal-footer {
+  display: flex;
+  gap: 12px;
+  padding: 20px 25px;
+  border-top: 1px solid #e9ecef;
+  background: #f8f9fa;
+  justify-content: flex-end;
+}
+
+.modal-btn {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.95rem;
+}
+
+.modal-btn.cancel {
+  background: #e9ecef;
+  color: #2c3e50;
+}
+
+.modal-btn.cancel:hover:not(:disabled) {
+  background: #dee2e6;
+}
+
+.modal-btn.submit {
+  background: #3498db;
+  color: white;
+  min-width: 140px;
+}
+
+.modal-btn.submit:hover:not(:disabled) {
+  background: #2980b9;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+}
+
+.modal-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Rating Display in Game Card */
+.rating-display {
+  padding: 12px 0;
+  margin: 15px 0;
+  border-top: 1px solid #e9ecef;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.user-rating {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.rating-stars {
+  display: flex;
+  gap: 3px;
+}
+
+.star-filled {
+  color: #f39c12;
+  font-size: 1rem;
+}
+
+.star-empty {
+  color: #e9ecef;
+  font-size: 1rem;
+}
+
+.rating-text {
+  font-weight: 600;
+  color: #2c3e50;
+  font-size: 0.95rem;
+}
+
+.no-rating {
+  color: #95a5a6;
+  font-size: 0.9rem;
+  font-style: italic;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .rating-modal {
+    max-width: 95%;
+  }
+
+  .modal-header {
+    padding: 15px;
+  }
+
+  .modal-header h2 {
+    font-size: 1.1rem;
+  }
+
+  .modal-body {
+    padding: 20px 15px;
+    gap: 20px;
+  }
+
+  .modal-footer {
+    flex-direction: column-reverse;
+    gap: 10px;
+  }
+
+  .modal-btn {
+    width: 100%;
+  }
+
+  .star-rating {
+    gap: 8px;
+  }
+
+  .star-btn {
+    padding: 6px 10px;
+    font-size: 1.5rem;
+  }
+}

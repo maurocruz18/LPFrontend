@@ -256,20 +256,7 @@ const RegisterPage = () => {
           {loading ? 'Creating Account...' : 'Create Account'}
         </button>
 
-        <div className="auth-divider">
-          <span>or</span>
-        </div>
-
-        <div className="social-auth">
-          <button type="button" className="social-button google">
-            <span className="social-icon">🔍</span>
-            Continue with Google
-          </button>
-          <button type="button" className="social-button steam">
-            <span className="social-icon">🎮</span>
-            Continue with Steam
-          </button>
-        </div>
+        
 
         <div className="auth-footer">
           Already have an account? <Link to="/login" className="auth-link">Sign in</Link>

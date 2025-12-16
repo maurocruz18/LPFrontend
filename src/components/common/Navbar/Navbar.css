@@ -56,14 +56,19 @@
   padding: 0.6rem 1rem;
   border: none;
   border-radius: 25px 0 0 25px;
-  background-color: #34495e;
-  color: #ecf0f1;
+  background-color: #ecf0f1;
+  color: #2c3e50;
   font-size: 0.9rem;
   outline: none;
 }
 
 .search-input::placeholder {
-  color: #bdc3c7;
+  color: #95a5a6;
+}
+
+.search-input:focus {
+  background-color: white;
+  color: #2c3e50;
 }
 
 .search-btn {

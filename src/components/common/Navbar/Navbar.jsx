@@ -21,9 +21,10 @@ const Navbar = () => {
 
   const fetchCartCount = async () => {
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/users/cart`, {
-        headers: getAuthHeader(),
-      });
+		const baseUrl = process.env.REACT_APP_API_URL.replace('/api', '');
+		const response = await fetch(`${baseUrl}/users/cart`, {
+		  headers: getAuthHeader(),
+		});
 
       if (response.ok) {
         const data = await response.json();

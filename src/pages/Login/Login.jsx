@@ -113,24 +113,7 @@ const LoginPage = () => {
           {loading ? 'Signing In...' : 'Sign In'}
         </button>
 
-        <div className="auth-divider">
-          <span>or</span>
-        </div>
-
-        <div className="social-auth">
-          <button type="button" className="social-button google">
-            <span className="social-icon">🔍</span>
-            Continue with Google
-          </button>
-          <button type="button" className="social-button steam">
-            <span className="social-icon">🎮</span>
-            Continue with Steam
-          </button>
-          <button type="button" className="social-button discord">
-            <span className="social-icon">💬</span>
-            Continue with Discord
-          </button>
-        </div>
+        
 
         <div className="auth-footer">
           Don't have an account? <Link to="/register" className="auth-link">Sign up</Link>

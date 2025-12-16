@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import cartService from '../../services/cart.service';
-import useAuth from '../../hooks/useAuth';
+import purchaseService from '../../../services/purchase.service';
+import useAuth from '../../../hooks/useAuth';
 import './CartDropdown.css';
 
 const CartDropdown = ({ isOpen, onClose }) => {
@@ -19,18 +19,21 @@ const CartDropdown = ({ isOpen, onClose }) => {
 
   const fetchCart = async () => {
     try {
-      const response = await cartService.getCart();
+      setLoading(true);
+      const response = await purchaseService.getCart();
       if (response.data.success) {
         setCartItems(response.data.data || []);
       }
     } catch (error) {
       console.error('Error fetching cart:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
   const removeFromCart = async (gameId) => {
     try {
-      const response = await cartService.removeFromCart(gameId);
+      const response = await purchaseService.removeFromCart(gameId);
       if (response.data.success) {
         setCartItems(cartItems.filter(item => item.gameId !== gameId));
       }
@@ -44,7 +47,7 @@ const CartDropdown = ({ isOpen, onClose }) => {
     if (!window.confirm('Are you sure you want to clear your cart?')) return;
 
     try {
-      const response = await cartService.clearCart();
+      const response = await purchaseService.clearCart();
       if (response.data.success) {
         setCartItems([]);
       }
@@ -59,9 +62,9 @@ const CartDropdown = ({ isOpen, onClose }) => {
 
     setCheckoutLoading(true);
     try {
-      const response = await cartService.checkout('credit_card');
+      const response = await purchaseService.checkout('credit_card');
       if (response.data.success) {
-        alert('Purchase successful! Games added to your library.');
+        alert('🎉 Purchase successful! Games added to your library.');
         setCartItems([]);
         onClose();
         navigate('/library');
@@ -70,7 +73,8 @@ const CartDropdown = ({ isOpen, onClose }) => {
       }
     } catch (error) {
       console.error('Error during checkout:', error);
-      alert(`Checkout failed: ${error.response?.data?.message || error.message || 'Please try again.'}`);
+      const errorMsg = error.response?.data?.message || error.message || 'Unknown error';
+      alert(`Checkout failed: ${errorMsg}`);
     } finally {
       setCheckoutLoading(false);
     }
@@ -101,7 +105,13 @@ const CartDropdown = ({ isOpen, onClose }) => {
         {!user ? (
           <div className="cart-login-message">
             <p>Please login to view your cart</p>
-            <button onClick={() => { onClose(); navigate('/login'); }} className="login-btn">
+            <button 
+              onClick={() => { 
+                onClose(); 
+                navigate('/login'); 
+              }} 
+              className="login-btn"
+            >
               Login
             </button>
           </div>
@@ -109,7 +119,13 @@ const CartDropdown = ({ isOpen, onClose }) => {
           <div className="cart-empty">
             <div className="empty-icon">🛒</div>
             <p>Your cart is empty</p>
-            <button onClick={() => { onClose(); navigate('/browse'); }} className="browse-btn">
+            <button 
+              onClick={() => { 
+                onClose(); 
+                navigate('/browse'); 
+              }} 
+              className="browse-btn"
+            >
               Browse Games
             </button>
           </div>
@@ -120,8 +136,8 @@ const CartDropdown = ({ isOpen, onClose }) => {
                 <div key={item.gameId} className="cart-item">
                   <div className="cart-item-info">
                     <h4 className="cart-item-title">{item.gameName}</h4>
-                    <p className="cart-item-price">${item.price?.toFixed(2) || '0.00'}</p>
-                    {item.quantity > 1 && (
+                    <p className="cart-item-price">€{item.price?.toFixed(2) || '0.00'}</p>
+                    {item.quantity && item.quantity > 1 && (
                       <p className="cart-item-quantity">Qty: {item.quantity}</p>
                     )}
                   </div>
@@ -129,6 +145,7 @@ const CartDropdown = ({ isOpen, onClose }) => {
                     className="remove-item-btn"
                     onClick={() => removeFromCart(item.gameId)}
                     title="Remove item"
+                    disabled={checkoutLoading}
                   >
                     ×
                   </button>
@@ -139,27 +156,31 @@ const CartDropdown = ({ isOpen, onClose }) => {
             <div className="cart-summary">
               <div className="summary-row">
                 <span>Subtotal:</span>
-                <span>${calculateTotal()}</span>
+                <span>€{calculateTotal()}</span>
               </div>
               <div className="summary-row">
                 <span>Tax (10%):</span>
-                <span>${calculateTax()}</span>
+                <span>€{calculateTax()}</span>
               </div>
               <div className="summary-row total">
                 <span>Total:</span>
-                <span>${calculateGrandTotal()}</span>
+                <span>€{calculateGrandTotal()}</span>
               </div>
 
               <div className="cart-actions">
-                <button className="clear-cart-btn" onClick={clearCart}>
+                <button 
+                  className="clear-cart-btn" 
+                  onClick={clearCart}
+                  disabled={checkoutLoading}
+                >
                   Clear Cart
                 </button>
                 <button
                   className="checkout-btn"
                   onClick={checkout}
-                  disabled={checkoutLoading}
+                  disabled={checkoutLoading || cartItems.length === 0}
                 >
-                  {checkoutLoading ? 'Processing...' : `Checkout $${calculateGrandTotal()}`}
+                  {checkoutLoading ? 'Processing...' : `Checkout €${calculateGrandTotal()}`}
                 </button>
               </div>
             </div>

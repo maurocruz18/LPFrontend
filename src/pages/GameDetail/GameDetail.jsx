@@ -125,19 +125,20 @@ const GameDetailsPage = () => {
     try {
       const price = game.price?.onSale ? game.price.salePrice : game.price?.amount || 0;
       
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/users/cart`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          gameId: game.steamAppId,
-          gameName: game.name,
-          price: price * quantity,
-          quantity: quantity
-        }),
-      });
+      const baseUrl = process.env.REACT_APP_API_URL.replace('/api', '');
+const response = await fetch(`${baseUrl}/users/cart`, {
+  method: 'POST',
+  headers: {
+    'Authorization': `Bearer ${token}`,
+    'Content-Type': 'application/json',
+  },
+  body: JSON.stringify({
+    gameId: game.steamAppId,
+    gameName: game.name,
+    price: price * quantity,
+    quantity: quantity
+  }),
+});
 
       if (response.ok) {
         const data = await response.json();
@@ -170,19 +171,20 @@ const GameDetailsPage = () => {
       const price = game.price?.onSale ? game.price.salePrice : game.price?.amount || 0;
       
       // First add to cart
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/users/cart`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          gameId: game.steamAppId,
-          gameName: game.name,
-          price: price * quantity,
-          quantity: quantity
-        }),
-      });
+      const baseUrl = process.env.REACT_APP_API_URL.replace('/api', '');
+const response = await fetch(`${baseUrl}/users/cart`, {
+  method: 'POST',
+  headers: {
+    'Authorization': `Bearer ${token}`,
+    'Content-Type': 'application/json',
+  },
+  body: JSON.stringify({
+    gameId: game.steamAppId,
+    gameName: game.name,
+    price: price * quantity,
+    quantity: quantity
+  }),
+});
 
       if (response.ok) {
         // Then checkout immediately

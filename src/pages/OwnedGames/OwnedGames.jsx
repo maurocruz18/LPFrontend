@@ -1,84 +1,300 @@
-
-import React, { useState } from 'react';
-import { mockGames } from '../../data/mockGames';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import purchaseService from '../../services/purchase.service';
+import useAuth from '../../hooks/useAuth';
 import './OwnedGames.css';
 
 const OwnedGamesPage = () => {
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const [games, setGames] = useState([]);
+  const [filteredGames, setFilteredGames] = useState([]);
   const [filter, setFilter] = useState('all');
   const [sortBy, setSortBy] = useState('recent');
   const [searchTerm, setSearchTerm] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // For demo purposes, we'll use the first 6 games as owned games
-  // In a real app, this would come from user purchase history
-  const ownedGames = mockGames.slice(0, 6).map(game => ({
-    ...game,
-    purchaseDate: new Date(2024, 0, Math.floor(Math.random() * 30) + 1), // Random dates in Jan 2024
-    playTime: Math.floor(Math.random() * 100), // Random play time in hours
-    lastPlayed: new Date(2024, 0, Math.floor(Math.random() * 30) + 1), // Random last played dates
-    isInstalled: Math.random() > 0.5 // Random installation status
-  }));
+  // Rating modal state
+  const [ratingModal, setRatingModal] = useState({
+    isOpen: false,
+    gameId: null,
+    gameName: '',
+    gameSteamId: null
+  });
+  const [ratingData, setRatingData] = useState({ rating: 5, comment: '' });
+  const [ratingLoading, setRatingLoading] = useState(false);
 
-  // Filter and sort games
-  const filteredGames = ownedGames
-    .filter(game => {
-      // Search filter
-      if (searchTerm && !game.title.toLowerCase().includes(searchTerm.toLowerCase())) {
-        return false;
-      }
+  // Redirect if not logged in
+  useEffect(() => {
+    if (!user) {
+      navigate('/login');
+    }
+  }, [user, navigate]);
+
+  // Fetch library data on mount
+  useEffect(() => {
+    if (user) {
+      fetchLibrary();
+    }
+  }, [user]);
+
+  // Apply filters and sorting whenever games, search, filter, or sort changes
+  useEffect(() => {
+    applyFiltersAndSort();
+  }, [games, searchTerm, filter, sortBy]);
+
+  const fetchLibrary = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const token = localStorage.getItem('token');
+      const baseUrl = process.env.REACT_APP_API_URL.replace('/api', '');
       
-      // Status filter
-      switch (filter) {
-        case 'installed':
-          return game.isInstalled;
-        case 'not-installed':
-          return !game.isInstalled;
-        case 'recently-played':
-          return game.lastPlayed > new Date(2024, 0, 15); // Played in last 15 days
-        default:
-          return true;
+      const response = await fetch(`${baseUrl}/users/library`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        }
+      });
+
+      const data = await response.json();
+
+      if (data.success && data.data) {
+        const libraryGames = data.data.map(game => ({
+          id: game.gameId || game._id,
+          steamAppId: game.gameId,
+          title: game.gameName,
+          isInstalled: true,
+          playTime: game.playTime || 0,
+          purchaseDate: game.purchaseDate || new Date().toISOString(),
+          userRating: game.userRating || null,
+          userComment: game.userComment || '',
+          backgroundImage: 'https://via.placeholder.com/350x200/2c3e50/ecf0f1?text=Game'
+        }));
+        setGames(libraryGames);
+      } else {
+        setError(data.message || 'Failed to load library');
       }
-    })
-    .sort((a, b) => {
+    } catch (err) {
+      console.error('Error fetching library:', err);
+      setError('Could not load your library. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const applyFiltersAndSort = () => {
+    let result = [...games];
+
+    // Search filter
+    if (searchTerm.trim()) {
+      const term = searchTerm.toLowerCase();
+      result = result.filter(game =>
+        (game.title || '').toLowerCase().includes(term) ||
+        (game.developer || '').toLowerCase().includes(term)
+      );
+    }
+
+    // Status filter
+    if (filter === 'rated') {
+      result = result.filter(game => game.userRating);
+    } else if (filter === 'not-rated') {
+      result = result.filter(game => !game.userRating);
+    }
+
+    // Sorting
+    result.sort((a, b) => {
       switch (sortBy) {
         case 'name':
-          return a.title.localeCompare(b.title);
+          return (a.title || '').localeCompare(b.title || '');
         case 'play-time':
-          return b.playTime - a.playTime;
+          return (b.playTime || 0) - (a.playTime || 0);
+        case 'rating':
+          return (b.userRating || 0) - (a.userRating || 0);
         case 'recent':
         default:
-          return new Date(b.purchaseDate) - new Date(a.purchaseDate);
+          return new Date(b.purchaseDate || 0) - new Date(a.purchaseDate || 0);
       }
     });
 
-  const totalPlayTime = ownedGames.reduce((total, game) => total + game.playTime, 0);
-  const installedCount = ownedGames.filter(game => game.isInstalled).length;
-
-  const installGame = (gameId) => {
-    alert(`Installing game (ID: ${gameId}) - This would trigger download in real app`);
-    // In real app: Update game installation status and trigger download
+    setFilteredGames(result);
   };
 
-  const playGame = (gameId) => {
-    alert(`Launching game (ID: ${gameId}) - This would launch the game in real app`);
-    // In real app: Launch the game executable
-  };
-
-  const uninstallGame = (gameId) => {
-    if (window.confirm('Are you sure you want to uninstall this game?')) {
-      alert(`Uninstalling game (ID: ${gameId}) - This would remove game files in real app`);
-      // In real app: Update installation status and remove files
+  const openRatingModal = (gameId, gameName, steamAppId) => {
+    setRatingModal({ isOpen: true, gameId, gameName, gameSteamId: steamAppId });
+    
+    // Check if game already has a rating and populate
+    const gameData = games.find(g => g.id === gameId);
+    if (gameData?.userRating) {
+      setRatingData({ 
+        rating: gameData.userRating, 
+        comment: gameData.userComment || '' 
+      });
+    } else {
+      setRatingData({ rating: 5, comment: '' });
     }
   };
+
+  const closeRatingModal = () => {
+    setRatingModal({ isOpen: false, gameId: null, gameName: '', gameSteamId: null });
+    setRatingData({ rating: 5, comment: '' });
+  };
+
+  const submitRating = async () => {
+    if (!ratingModal.gameSteamId) return;
+
+    setRatingLoading(true);
+    try {
+      const response = await purchaseService.rateGame(
+        ratingModal.gameSteamId,
+        ratingData.rating,
+        ratingData.comment
+      );
+
+      if (response.data.success) {
+        // Update local game data with new rating
+        setGames(prevGames =>
+          prevGames.map(game =>
+            game.id === ratingModal.gameId
+              ? { 
+                  ...game, 
+                  userRating: ratingData.rating, 
+                  userComment: ratingData.comment 
+                }
+              : game
+          )
+        );
+        alert('✅ Rating submitted successfully!');
+        closeRatingModal();
+      } else {
+        alert('Failed to submit rating');
+      }
+    } catch (err) {
+      console.error('Error submitting rating:', err);
+      alert('Failed to submit rating. Please try again.');
+    } finally {
+      setRatingLoading(false);
+    }
+  };
+
+  const playGame = (gameId, gameName) => {
+    alert(`🎮 Launching ${gameName}...\n\nIn a real app, this would launch your game!`);
+  };
+
+  const installGame = (gameId, gameName) => {
+    alert(`📥 Installing ${gameName}...\n\nIn a real app, this would start the download!`);
+  };
+
+  const uninstallGame = (gameId, gameName) => {
+    if (window.confirm(`Are you sure you want to uninstall ${gameName}?`)) {
+      alert(`🗑️ Uninstalling ${gameName}...`);
+    }
+  };
+
+  const formatDate = (dateString) => {
+    if (!dateString) return 'Unknown';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  };
+
+  const getTotalPlayTime = () => {
+    return games.reduce((total, game) => total + (game.playTime || 0), 0);
+  };
+
+  if (loading) {
+    return (
+      <div className="owned-games-page">
+        <div style={{ textAlign: 'center', padding: '4rem 2rem' }}>
+          <div className="spinner"></div>
+          <h3>Loading your library...</h3>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="owned-games-page">
+        <div style={{ textAlign: 'center', padding: '4rem 2rem' }}>
+          <h3 style={{ color: '#e74c3c' }}>😕 {error}</h3>
+          <button 
+            onClick={fetchLibrary}
+            style={{
+              marginTop: '1rem',
+              padding: '0.8rem 1.5rem',
+              background: '#3498db',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer'
+            }}
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="owned-games-page">
       {/* Page Header */}
       <div className="owned-games-header">
         <div className="header-content">
-          <h1>My Games Library</h1>
-          <p>Your purchased games and download manager</p>
+          <h1>📚 My Library</h1>
+          <p>Your purchased games and collection</p>
         </div>
-        
+
+        {/* Stats */}
+        <div className="library-stats" style={{ display: 'flex', gap: '20px' }}>
+          <div className="stat-item" style={{ 
+            background: '#f8f9fa', 
+            padding: '15px 20px', 
+            borderRadius: '8px',
+            textAlign: 'center',
+            minWidth: '120px'
+          }}>
+            <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#3498db' }}>
+              {games.length}
+            </div>
+            <div style={{ fontSize: '0.9rem', color: '#6c757d', marginTop: '5px' }}>
+              Games Owned
+            </div>
+          </div>
+          <div className="stat-item" style={{ 
+            background: '#f8f9fa', 
+            padding: '15px 20px', 
+            borderRadius: '8px',
+            textAlign: 'center',
+            minWidth: '120px'
+          }}>
+            <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#27ae60' }}>
+              {getTotalPlayTime()}h
+            </div>
+            <div style={{ fontSize: '0.9rem', color: '#6c757d', marginTop: '5px' }}>
+              Total Playtime
+            </div>
+          </div>
+          <div className="stat-item" style={{ 
+            background: '#f8f9fa', 
+            padding: '15px 20px', 
+            borderRadius: '8px',
+            textAlign: 'center',
+            minWidth: '120px'
+          }}>
+            <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#f39c12' }}>
+              {games.filter(g => g.userRating).length}
+            </div>
+            <div style={{ fontSize: '0.9rem', color: '#6c757d', marginTop: '5px' }}>
+              Games Rated
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Controls Bar */}
@@ -97,25 +313,25 @@ const OwnedGamesPage = () => {
         </div>
 
         <div className="filter-controls">
-          <select 
-            value={filter} 
+          <select
+            value={filter}
             onChange={(e) => setFilter(e.target.value)}
             className="filter-select"
           >
             <option value="all">All Games</option>
-            <option value="installed">Installed</option>
-            <option value="not-installed">Not Installed</option>
-            <option value="recently-played">Recently Played</option>
+            <option value="rated">Rated by Me</option>
+            <option value="not-rated">Not Rated</option>
           </select>
 
-          <select 
-            value={sortBy} 
+          <select
+            value={sortBy}
             onChange={(e) => setSortBy(e.target.value)}
             className="sort-select"
           >
             <option value="recent">Recently Added</option>
             <option value="name">Name (A-Z)</option>
             <option value="play-time">Play Time</option>
+            <option value="rating">My Rating</option>
           </select>
         </div>
       </div>
@@ -125,51 +341,107 @@ const OwnedGamesPage = () => {
         {filteredGames.length > 0 ? (
           <div className="owned-games-grid">
             {filteredGames.map(game => (
-              <OwnedGameCard 
-                key={game.id} 
+              <OwnedGameCard
+                key={game.id}
                 game={game}
-                onInstall={installGame}
                 onPlay={playGame}
+                onInstall={installGame}
                 onUninstall={uninstallGame}
+                onRate={openRatingModal}
               />
             ))}
           </div>
         ) : (
-          /* Empty Search State */
           <div className="no-games-found">
             <div className="empty-icon">🎮</div>
             <h2>No Games Found</h2>
-            <p>Try adjusting your search or filter criteria</p>
-            <button 
-              className="clear-filters-btn"
-              onClick={() => {
-                setSearchTerm('');
-                setFilter('all');
-              }}
-            >
-              Clear Filters
-            </button>
+            <p>
+              {games.length === 0
+                ? "You don't have any games yet. Start shopping!"
+                : 'No games match your search criteria.'}
+            </p>
+            {games.length > 0 && (
+              <button
+                className="clear-filters-btn"
+                onClick={() => {
+                  setSearchTerm('');
+                  setFilter('all');
+                }}
+              >
+                Clear Filters
+              </button>
+            )}
           </div>
         )}
       </div>
 
-      {/* Quick Actions */}
-      {ownedGames.length > 0 && (
-        <div className="quick-actions">
-          <h3>Quick Actions</h3>
-          <div className="action-buttons">
-            <button className="action-btn">
-              <span className="action-icon">📥</span>
-              Install All
-            </button>
-            <button className="action-btn">
-              <span className="action-icon">🔄</span>
-              Check for Updates
-            </button>
-            <button className="action-btn">
-              <span className="action-icon">📊</span>
-              View Play Statistics
-            </button>
+      {/* Rating Modal */}
+      {ratingModal.isOpen && (
+        <div 
+          className="rating-modal-overlay"
+          onClick={closeRatingModal}
+        >
+          <div 
+            className="rating-modal"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="modal-header">
+              <h2>Rate: {ratingModal.gameName}</h2>
+              <button 
+                className="modal-close-btn"
+                onClick={closeRatingModal}
+              >
+                ×
+              </button>
+            </div>
+
+            <div className="modal-body">
+              <div className="rating-section">
+                <label>Your Rating (1-5 stars)</label>
+                <div className="star-rating">
+                  {[1, 2, 3, 4, 5].map(star => (
+                    <button
+                      key={star}
+                      className={`star-btn ${star <= ratingData.rating ? 'active' : ''}`}
+                      onClick={() => setRatingData({ ...ratingData, rating: star })}
+                      disabled={ratingLoading}
+                      title={`${star} star${star !== 1 ? 's' : ''}`}
+                    >
+                      ⭐
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="comment-section">
+                <label>Your Review (Optional)</label>
+                <textarea
+                  placeholder="Share your thoughts about this game..."
+                  value={ratingData.comment}
+                  onChange={(e) => setRatingData({ ...ratingData, comment: e.target.value })}
+                  disabled={ratingLoading}
+                  rows="4"
+                  className="comment-textarea"
+                />
+              </div>
+            </div>
+
+            <div className="modal-footer">
+              <button
+                className="modal-btn cancel"
+                onClick={closeRatingModal}
+                disabled={ratingLoading}
+              >
+                Cancel
+              </button>
+              <button
+                className="modal-btn submit"
+                onClick={submitRating}
+                disabled={ratingLoading}
+              >
+                {ratingLoading ? 'Submitting...' : 'Submit Rating'}
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -178,103 +450,81 @@ const OwnedGamesPage = () => {
 };
 
 // Owned Game Card Component
-const OwnedGameCard = ({ game, onInstall, onPlay, onUninstall }) => {
-  const formatDate = (date) => {
-    return new Date(date).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    });
-  };
+const OwnedGameCard = ({ game, onPlay, onInstall, onUninstall, onRate }) => {
+  const gameId = game.id;
+  const gameName = game.title || 'Unknown Game';
 
-  const getTimeSince = (date) => {
-    const now = new Date();
-    const diffTime = Math.abs(now - new Date(date));
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
-    if (diffDays === 1) return '1 day ago';
-    if (diffDays < 30) return `${diffDays} days ago`;
-    if (diffDays < 365) return `${Math.floor(diffDays / 30)} months ago`;
-    return `${Math.floor(diffDays / 365)} years ago`;
+  const formatDate = (dateString) => {
+    if (!dateString) return 'Unknown';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
+    });
   };
 
   return (
     <div className={`owned-game-card ${game.isInstalled ? 'installed' : ''}`}>
-      <div className="game-image-section">
-        <img src={game.image} alt={game.title} className="game-image" />
-        <div className="game-overlay">
-          {game.isInstalled ? (
-            <button 
-              className="play-button"
-              onClick={() => onPlay(game.id)}
-            >
-              ▶️ Play
-            </button>
-          ) : (
-            <button 
-              className="install-button"
-              onClick={() => onInstall(game.id)}
-            >
-              📥 Install
-            </button>
+      <div className="game-info-section">
+        <div className="game-header">
+          <h3 className="game-title">🎮 {gameName}</h3>
+          {game.isInstalled && (
+            <span className="installed-badge">INSTALLED</span>
           )}
         </div>
-        {game.isInstalled && (
-          <div className="installed-badge">INSTALLED</div>
-        )}
-      </div>
 
-      <div className="game-info-section">
-        <h3 className="game-title">{game.title}</h3>
-        <p className="game-genre">{game.genre}</p>
-        
         <div className="game-meta">
-          <div className="meta-item">
-            <span className="meta-label">Play Time:</span>
-            <span className="meta-value">{game.playTime}h</span>
-          </div>
-          <div className="meta-item">
-            <span className="meta-label">Last Played:</span>
-            <span className="meta-value">
-              {game.lastPlayed ? getTimeSince(game.lastPlayed) : 'Never'}
-            </span>
-          </div>
-          <div className="meta-item">
-            <span className="meta-label">Purchased:</span>
-            <span className="meta-value">{formatDate(game.purchaseDate)}</span>
-          </div>
+          {game.purchaseDate && (
+            <div className="meta-item">
+              <span className="meta-label">Purchased:</span>
+              <span className="meta-value">{formatDate(game.purchaseDate)}</span>
+            </div>
+          )}
+          {game.playTime !== undefined && (
+            <div className="meta-item">
+              <span className="meta-label">Play Time:</span>
+              <span className="meta-value">{game.playTime}h</span>
+            </div>
+          )}
         </div>
 
-        <div className="platform-tags">
-          {game.platforms.map(platform => (
-            <span key={platform} className="platform-tag">{platform}</span>
-          ))}
+        {/* Rating Display */}
+        <div className="rating-display">
+          {game.userRating ? (
+            <div className="user-rating">
+              <div className="rating-stars">
+                {[...Array(5)].map((_, i) => (
+                  <span 
+                    key={i} 
+                    className={i < Math.floor(game.userRating) ? 'star-filled' : 'star-empty'}
+                  >
+                    ⭐
+                  </span>
+                ))}
+              </div>
+              <span className="rating-text">{game.userRating}/5</span>
+            </div>
+          ) : (
+            <div className="no-rating">Not rated yet</div>
+          )}
         </div>
 
         <div className="game-actions">
-          {game.isInstalled ? (
-            <>
-              <button 
-                className="action-btn secondary"
-                onClick={() => onPlay(game.id)}
-              >
-                Play
-              </button>
-              <button 
-                className="action-btn danger"
-                onClick={() => onUninstall(game.id)}
-              >
-                Uninstall
-              </button>
-            </>
-          ) : (
-            <button 
+          {game.isInstalled && (
+            <button
               className="action-btn primary"
-              onClick={() => onInstall(game.id)}
+              onClick={() => onPlay(gameId, gameName)}
             >
-              Install
+              ▶️ Play
             </button>
           )}
+          <button
+            className="action-btn rate"
+            onClick={() => onRate(gameId, gameName, game.steamAppId)}
+          >
+            ⭐ {game.userRating ? 'Update' : 'Rate'}
+          </button>
         </div>
       </div>
     </div>

@@ -87,19 +87,15 @@ export const AuthProvider = ({ children }) => {
     setError(null);
   };
 
-  const updateProfile = async (name, email, dateOfBirth, currentPassword, newPassword) => {
+  const updateProfile = async (name, phone) => {
     try {
       setError(null);
-      const response = await authService.updateProfile(
-        name,
-        email,
-        dateOfBirth,
-        currentPassword,
-        newPassword
-      );
+      const response = await authService.updateProfile(name, phone);
+      
       const updatedUser = response.data.data;
       setUser(updatedUser);
       localStorage.setItem('user', JSON.stringify(updatedUser));
+      
       return response.data;
     } catch (err) {
       const errorMessage = err.response?.data?.message || 'Erro ao atualizar perfil';
@@ -108,17 +104,13 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const updateSettings = async (showExplicitContent, newsletter) => {
+  const changePassword = async (currentPassword, newPassword) => {
     try {
       setError(null);
-      const response = await authService.updateSettings(showExplicitContent, newsletter);
-      const updatedSettings = response.data.data.settings;
-      const updatedUser = { ...user, settings: updatedSettings };
-      setUser(updatedUser);
-      localStorage.setItem('user', JSON.stringify(updatedUser));
+      const response = await authService.changePassword(currentPassword, newPassword);
       return response.data;
     } catch (err) {
-      const errorMessage = err.response?.data?.message || 'Erro ao atualizar definições';
+      const errorMessage = err.response?.data?.message || 'Erro ao alterar senha';
       setError(errorMessage);
       throw err;
     }
@@ -133,7 +125,7 @@ export const AuthProvider = ({ children }) => {
     register,
     logout,
     updateProfile,
-    updateSettings,
+    changePassword,
   };
 
   return (

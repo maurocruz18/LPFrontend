@@ -18,21 +18,12 @@ const authService = {
     return api.get('/auth/me');
   },
 
-  updateProfile: (name, email, dateOfBirth, currentPassword, newPassword) => {
-    return api.put('/auth/profile', {
-      name,
-      email,
-      dateOfBirth,
-      currentPassword,
-      newPassword,
-    });
+  updateProfile: (name, phone) => {
+    return api.put('/auth/profile', { name, phone });
   },
 
-  updateSettings: (showExplicitContent, newsletter) => {
-    return api.put('/auth/settings', {
-      showExplicitContent,
-      newsletter,
-    });
+  changePassword: (currentPassword, newPassword) => {
+    return api.put('/auth/profile', { currentPassword, newPassword });
   },
 
   logout: () => {

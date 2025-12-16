@@ -13,6 +13,7 @@ const RegisterPage = () => {
     password: '',
     confirmPassword: '',
     dateOfBirth: '',
+    phone: '',
     agreeToTerms: false,
     newsletter: true
   });
@@ -64,6 +65,10 @@ const RegisterPage = () => {
       newErrors.dateOfBirth = 'Date of birth is required';
     }
 
+    if (!formData.phone) {
+      newErrors.phone = 'Phone number is required';
+  }
+
     if (!formData.agreeToTerms) {
       newErrors.agreeToTerms = 'You must agree to the terms and conditions';
     }
@@ -82,7 +87,8 @@ const RegisterPage = () => {
           formData.name,
           formData.email,
           formData.password,
-          formData.dateOfBirth
+          formData.dateOfBirth,
+          formData.phone
         );
         navigate('/');
       } catch (err) {
@@ -164,6 +170,23 @@ const RegisterPage = () => {
             required
           />
           {errors.dateOfBirth && <span className="error-message">{errors.dateOfBirth}</span>}
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="phone" className="form-label">
+            Phone Number
+          </label>
+          <input
+            type="tel"
+            id="phone"
+            name="phone"
+            value={formData.phone}
+            onChange={handleChange}
+            className={`form-input ${errors.phone ? 'error' : ''}`}
+            placeholder="Enter your phone number"
+            required
+          />
+          {errors.phone && <span className="error-message">{errors.phone}</span>}
         </div>
 
         <div className="form-group">

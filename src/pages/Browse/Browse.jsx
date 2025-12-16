@@ -1,93 +1,181 @@
-
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import GameCard from '../../components/game/GameCard/GameCard';
-import { mockGames } from '../../data/mockGames';
+import gamesService from '../../services/games.service';
 import './Browse.css';
 
 const BrowsePage = () => {
-  const [games, setGames] = useState(mockGames);
-  const [filteredGames, setFilteredGames] = useState(mockGames);
-  const [searchTerm, setSearchTerm] = useState('');
+  const location = useLocation();
+  const navigate = useNavigate();
+  const queryParams = new URLSearchParams(location.search);
+  
+  const [allGames, setAllGames] = useState([]);
+  const [filteredGames, setFilteredGames] = useState([]);
+  const [loading, setLoading] = useState(false);
+  
+  // Initialize searchTerm from URL query parameter if present
+  const initialSearch = queryParams.get('search') || '';
+  
+  const [searchTerm, setSearchTerm] = useState(initialSearch);
   const [sortBy, setSortBy] = useState('name');
   const [filters, setFilters] = useState({
-    category: 'all',
+    genre: 'all',
     priceRange: 'all',
     platform: 'all',
     onSale: false
   });
 
-  // Available filter options
-  const categories = ['all', 'RPG', 'Action', 'Sports', 'FPS', 'Sandbox'];
+  const [genres, setGenres] = useState([]);
+  const [availablePlatforms] = useState([
+    'All Platforms',
+    'PC',
+    'PlayStation 5',
+    'PlayStation 4',
+    'Xbox Series X/S',
+    'Xbox One',
+    'Nintendo Switch'
+  ]);
+
   const priceRanges = [
     { value: 'all', label: 'All Prices' },
+    { value: 'free', label: 'Free' },
     { value: 'under20', label: 'Under $20' },
     { value: '20-40', label: '$20 - $40' },
     { value: '40-60', label: '$40 - $60' },
     { value: 'over60', label: 'Over $60' }
   ];
-  const platforms = ['all', 'PC', 'PS5', 'PS4', 'XBOX', 'Switch', 'Mobile'];
 
-  // Filter and sort games
+  // Load all games on component mount
   useEffect(() => {
-    let results = [...games];
+    const fetchAllGames = async () => {
+      setLoading(true);
+      try {
+        // Fetch all games with pagination
+        let currentPage = 1;
+        let totalPages = 1;
+        let allGamesData = [];
+        
+        do {
+          const response = await gamesService.searchGames({
+            page: currentPage,
+            limit: 100 // Fetch more games per page
+          });
+          
+          if (response.data.success) {
+            const formattedGames = response.data.data.map(game => ({
+              id: game.steamAppId || game._id, // Use steamAppId as primary ID
+              steamAppId: game.steamAppId,
+              title: game.name,
+              genre: game.genres?.map(g => g.name).join(', ') || 'Unknown',
+              genresArray: game.genres?.map(g => g.name) || [],
+              developer: game.developers?.map(d => d.name).join(', ') || 'Unknown',
+              // Fix: Handle price object
+              price: typeof game.price === 'object' && game.price !== null ? game.price.amount : game.price || 0,
+              discountedPrice: game.price?.onSale ? game.price?.salePrice : null,
+              discount: game.price?.onSale && game.price?.amount && game.price?.salePrice 
+                ? Math.round(((game.price.amount - game.price.salePrice) / game.price.amount) * 100) 
+                : 0,
+              rating: game.rating || 0,
+              platforms: game.platforms?.map(p => p.platform.name) || [],
+              backgroundImage: game.backgroundImage,
+              releaseDate: game.released,
+              metacritic: game.metacritic,
+              description: game.description,
+              onSale: game.price?.onSale || false
+            }));
+            
+            allGamesData = [...allGamesData, ...formattedGames];
+            totalPages = response.data.pages || 1;
+            currentPage++;
+          }
+        } while (currentPage <= totalPages && totalPages > 1);
+        
+        setAllGames(allGamesData);
+      } catch (error) {
+        console.error('Error fetching games:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchAllGames();
+  }, []);
 
-    // Apply search filter
-    if (searchTerm) {
-      results = results.filter(game =>
-        game.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        game.genre.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        game.developer.toLowerCase().includes(searchTerm.toLowerCase())
+  // Load genres on component mount
+  useEffect(() => {
+    const fetchGenres = async () => {
+      try {
+        const response = await gamesService.getGenres();
+        if (response.data.success) {
+          setGenres(response.data.data);
+        }
+      } catch (error) {
+        console.error('Error fetching genres:', error);
+      }
+    };
+    fetchGenres();
+  }, []);
+
+  // Apply filters whenever filters, search term, or sort changes
+  useEffect(() => {
+    if (allGames.length === 0) return;
+    
+    let results = [...allGames];
+    
+    // 1. Apply search filter - prioritize the search term
+    if (searchTerm.trim()) {
+      const term = searchTerm.toLowerCase().trim();
+      results = results.filter(game => 
+        game.title.toLowerCase().includes(term) ||
+        game.developer.toLowerCase().includes(term) ||
+        game.genre.toLowerCase().includes(term)
       );
     }
-
-    // Apply category filter
-    if (filters.category !== 'all') {
-      results = results.filter(game => game.genre === filters.category);
+    
+    // 2. Apply genre filter
+    if (filters.genre !== 'all') {
+      results = results.filter(game => 
+        game.genresArray.includes(filters.genre)
+      );
     }
-
-    // Apply price range filter
-    if (filters.priceRange !== 'all') {
-      switch (filters.priceRange) {
-        case 'under20':
-          results = results.filter(game => 
-            (game.discountedPrice || game.price) < 20
-          );
-          break;
-        case '20-40':
-          results = results.filter(game => {
-            const price = game.discountedPrice || game.price;
-            return price >= 20 && price <= 40;
-          });
-          break;
-        case '40-60':
-          results = results.filter(game => {
-            const price = game.discountedPrice || game.price;
-            return price >= 40 && price <= 60;
-          });
-          break;
-        case 'over60':
-          results = results.filter(game => 
-            (game.discountedPrice || game.price) > 60
-          );
-          break;
-        default:
-          break;
-      }
-    }
-
-    // Apply platform filter
+    
+    // 3. Apply platform filter
     if (filters.platform !== 'all') {
       results = results.filter(game => 
-        game.platforms.includes(filters.platform)
+        game.platforms.some(platform => 
+          platform.toLowerCase().includes(filters.platform.toLowerCase())
+        )
       );
     }
-
-    // Apply sale filter
-    if (filters.onSale) {
-      results = results.filter(game => game.discount);
+    
+    // 4. Apply price range filter
+    if (filters.priceRange !== 'all') {
+      results = results.filter(game => {
+        const price = game.discountedPrice || game.price;
+        
+        switch (filters.priceRange) {
+          case 'free':
+            return price === 0;
+          case 'under20':
+            return price > 0 && price < 20;
+          case '20-40':
+            return price >= 20 && price <= 40;
+          case '40-60':
+            return price >= 40 && price <= 60;
+          case 'over60':
+            return price > 60;
+          default:
+            return true;
+        }
+      });
     }
-
-    // Apply sorting
+    
+    // 5. Apply on sale filter
+    if (filters.onSale) {
+      results = results.filter(game => game.onSale);
+    }
+    
+    // 6. Apply sorting
     results.sort((a, b) => {
       switch (sortBy) {
         case 'name':
@@ -99,15 +187,25 @@ const BrowsePage = () => {
         case 'rating':
           return b.rating - a.rating;
         case 'newest':
-          // For mock data, we'll use ID as proxy for release date
-          return b.id - a.id;
+          return new Date(b.releaseDate) - new Date(a.releaseDate);
         default:
           return 0;
       }
     });
-
+    
     setFilteredGames(results);
-  }, [games, searchTerm, sortBy, filters]);
+  }, [allGames, searchTerm, filters, sortBy]);
+
+  // Update URL when search term changes
+  useEffect(() => {
+    const params = new URLSearchParams();
+    if (searchTerm.trim()) {
+      params.set('search', searchTerm.trim());
+    }
+    
+    const newUrl = params.toString() ? `/browse?${params.toString()}` : '/browse';
+    navigate(newUrl, { replace: true });
+  }, [searchTerm, navigate]);
 
   const handleFilterChange = (filterType, value) => {
     setFilters(prev => ({
@@ -118,13 +216,21 @@ const BrowsePage = () => {
 
   const clearFilters = () => {
     setFilters({
-      category: 'all',
+      genre: 'all',
       priceRange: 'all',
       platform: 'all',
       onSale: false
     });
     setSearchTerm('');
     setSortBy('name');
+  };
+
+  // Function to handle search from within Browse page
+  const handleBrowseSearch = (e) => {
+    e.preventDefault();
+    if (searchTerm.trim()) {
+      // The useEffect above will handle the navigation
+    }
   };
 
   return (
@@ -145,29 +251,40 @@ const BrowsePage = () => {
             </button>
           </div>
 
-          {/* Search Filter */}
+          {/* Search Filter in Browse page */}
           <div className="filter-group">
             <label className="filter-label">Search</label>
-            <input
-              type="text"
-              placeholder="Search games..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="search-filter"
-            />
+            <form onSubmit={handleBrowseSearch}>
+              <input
+                type="text"
+                placeholder="Search by game name, developer, or genre..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="search-filter"
+                disabled={loading || allGames.length === 0}
+              />
+            </form>
           </div>
 
           {/* Category Filter */}
           <div className="filter-group">
             <label className="filter-label">Category</label>
             <div className="filter-options">
-              {categories.map(category => (
+              <button
+                className={`filter-option ${filters.genre === 'all' ? 'active' : ''}`}
+                onClick={() => handleFilterChange('genre', 'all')}
+                disabled={loading}
+              >
+                All Categories
+              </button>
+              {genres.map(genre => (
                 <button
-                  key={category}
-                  className={`filter-option ${filters.category === category ? 'active' : ''}`}
-                  onClick={() => handleFilterChange('category', category)}
+                  key={genre.slug}
+                  className={`filter-option ${filters.genre === genre.name ? 'active' : ''}`}
+                  onClick={() => handleFilterChange('genre', genre.name)}
+                  disabled={loading}
                 >
-                  {category === 'all' ? 'All Categories' : category}
+                  {genre.name} ({genre.gameCount})
                 </button>
               ))}
             </div>
@@ -182,6 +299,7 @@ const BrowsePage = () => {
                   key={range.value}
                   className={`filter-option ${filters.priceRange === range.value ? 'active' : ''}`}
                   onClick={() => handleFilterChange('priceRange', range.value)}
+                  disabled={loading}
                 >
                   {range.label}
                 </button>
@@ -193,13 +311,14 @@ const BrowsePage = () => {
           <div className="filter-group">
             <label className="filter-label">Platform</label>
             <div className="filter-options">
-              {platforms.map(platform => (
+              {availablePlatforms.map(platform => (
                 <button
                   key={platform}
                   className={`filter-option ${filters.platform === platform ? 'active' : ''}`}
                   onClick={() => handleFilterChange('platform', platform)}
+                  disabled={loading}
                 >
-                  {platform === 'all' ? 'All Platforms' : platform}
+                  {platform}
                 </button>
               ))}
             </div>
@@ -212,6 +331,7 @@ const BrowsePage = () => {
                 type="checkbox"
                 checked={filters.onSale}
                 onChange={(e) => handleFilterChange('onSale', e.target.checked)}
+                disabled={loading}
               />
               On Sale Only
             </label>
@@ -223,7 +343,20 @@ const BrowsePage = () => {
           {/* Results Header */}
           <div className="results-header">
             <div className="results-count">
-              Showing {filteredGames.length} of {games.length} games
+              {loading ? (
+                'Loading all games...'
+              ) : allGames.length === 0 ? (
+                'No games available'
+              ) : (
+                <>
+                  Showing {filteredGames.length} of {allGames.length} games
+                  {searchTerm && (
+                    <span style={{ display: 'block', fontSize: '0.9rem', color: '#3498db', marginTop: '0.5rem' }}>
+                      Search: "{searchTerm}"
+                    </span>
+                  )}
+                </>
+              )}
             </div>
             <div className="sort-options">
               <label>Sort by:</label>
@@ -231,6 +364,7 @@ const BrowsePage = () => {
                 value={sortBy} 
                 onChange={(e) => setSortBy(e.target.value)}
                 className="sort-select"
+                disabled={loading || allGames.length === 0}
               >
                 <option value="name">Name (A-Z)</option>
                 <option value="price-low">Price (Low to High)</option>
@@ -241,20 +375,41 @@ const BrowsePage = () => {
             </div>
           </div>
 
-          {/* Games Grid */}
-          {filteredGames.length > 0 ? (
+          {/* Loading State */}
+          {loading ? (
+            <div className="no-results">
+              <h3>Loading games...</h3>
+              <p>Please wait while we fetch all games from the server</p>
+              <div className="spinner"></div>
+            </div>
+          ) : filteredGames.length > 0 ? (
             <div className="games-grid">
               {filteredGames.map(game => (
                 <GameCard key={game.id} game={game} />
               ))}
             </div>
-          ) : (
+          ) : allGames.length > 0 ? (
             <div className="no-results">
               <h3>No games found</h3>
-              <p>Try adjusting your filters or search terms</p>
+              <p>
+                {searchTerm ? (
+                  <>
+                    No games found for "<strong>{searchTerm}</strong>"
+                    <br />
+                    Try different search terms or clear the search
+                  </>
+                ) : (
+                  'Try adjusting your filters or search terms'
+                )}
+              </p>
               <button className="clear-filters-btn" onClick={clearFilters}>
                 Clear All Filters
               </button>
+            </div>
+          ) : (
+            <div className="no-results">
+              <h3>No games available</h3>
+              <p>There are currently no games in the database</p>
             </div>
           )}
         </div>

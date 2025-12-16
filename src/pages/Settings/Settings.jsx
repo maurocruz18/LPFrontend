@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import useAuth from '../../hooks/useAuth';
 import './Settings.css';
 
@@ -15,8 +15,23 @@ const SettingsPage = () => {
 
   // Settings Data
   const [settings, setSettings] = useState({
-    showExplicitContent: user?.settings?.showExplicitContent || false
+    showExplicitContent: user?.settings?.showExplicitContent || false,
+    newsletter: user?.settings?.newsletter || false
   });
+
+  // Atualizar settings quando o user mudar
+  useEffect(() => {
+    if (user) {
+      setProfile({
+        name: user.name || '',
+        phone: user.phone || ''
+      });
+      setSettings({
+        showExplicitContent: user.settings?.showExplicitContent || false,
+        newsletter: user.settings?.newsletter || false
+      });
+    }
+  }, [user]);
 
   // Password Data
   const [passwords, setPasswords] = useState({
@@ -67,16 +82,25 @@ const SettingsPage = () => {
   const handleSaveProfile = async (e) => {
     e.preventDefault();
     const errors = validateProfile();
-
+  
     if (Object.keys(errors).length === 0) {
       setSaving(true);
       setMessage({ type: '', text: '' });
       
+      console.log('Attempting to update profile with:', profile);
+      
       try {
-        await updateProfile(profile.name, profile.phone);
+        const response = await updateProfile(profile.name, profile.phone);
+        console.log('Profile update response:', response);
         setMessage({ type: 'success', text: 'Perfil atualizado com sucesso!' });
+        setTimeout(() => setMessage({ type: '', text: '' }), 3000);
       } catch (err) {
-        setMessage({ type: 'error', text: err.response?.data?.message || 'Erro ao atualizar perfil' });
+        console.error('Profile update error:', err);
+        console.error('Error response:', err.response);
+        setMessage({ 
+          type: 'error', 
+          text: err.response?.data?.message || 'Erro ao atualizar perfil' 
+        });
       } finally {
         setSaving(false);
       }
@@ -98,6 +122,7 @@ const SettingsPage = () => {
         await changePassword(passwords.currentPassword, passwords.newPassword);
         setMessage({ type: 'success', text: 'Senha alterada com sucesso!' });
         setPasswords({ currentPassword: '', newPassword: '', confirmPassword: '' });
+        setTimeout(() => setMessage({ type: '', text: '' }), 3000);
       } catch (err) {
         setMessage({ type: 'error', text: err.response?.data?.message || 'Erro ao alterar senha' });
       } finally {
@@ -115,11 +140,44 @@ const SettingsPage = () => {
     setMessage({ type: '', text: '' });
 
     try {
-      await updateSettings({ showExplicitContent: newExplicitContentState }); // Pass an object as expected by the service
+      await updateSettings({ showExplicitContent: newExplicitContentState });
       setSettings(prev => ({ ...prev, showExplicitContent: newExplicitContentState }));
-      setMessage({ type: 'success', text: 'Configuração de conteúdo explícito atualizada!' });
+      setMessage({ 
+        type: 'success', 
+        text: newExplicitContentState 
+          ? 'Conteúdo explícito ativado!' 
+          : 'Conteúdo explícito desativado!' 
+      });
+      setTimeout(() => setMessage({ type: '', text: '' }), 3000);
     } catch (err) {
-      setMessage({ type: 'error', text: err.response?.data?.message || 'Erro ao atualizar configuração de conteúdo explícito' });
+      setMessage({ type: 'error', text: err.response?.data?.message || 'Erro ao atualizar configuração' });
+      // Reverter a mudança em caso de erro
+      setSettings(prev => ({ ...prev, showExplicitContent: !newExplicitContentState }));
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // Handle Newsletter Toggle
+  const handleToggleNewsletter = async () => {
+    const newNewsletterState = !settings.newsletter;
+    setSaving(true);
+    setMessage({ type: '', text: '' });
+
+    try {
+      await updateSettings({ newsletter: newNewsletterState });
+      setSettings(prev => ({ ...prev, newsletter: newNewsletterState }));
+      setMessage({ 
+        type: 'success', 
+        text: newNewsletterState 
+          ? 'Newsletter ativada!' 
+          : 'Newsletter desativada!' 
+      });
+      setTimeout(() => setMessage({ type: '', text: '' }), 3000);
+    } catch (err) {
+      setMessage({ type: 'error', text: err.response?.data?.message || 'Erro ao atualizar newsletter' });
+      // Reverter a mudança em caso de erro
+      setSettings(prev => ({ ...prev, newsletter: !newNewsletterState }));
     } finally {
       setSaving(false);
     }
@@ -155,6 +213,7 @@ const SettingsPage = () => {
                   onChange={(e) => handleProfileChange('name', e.target.value)}
                   className={`form-input ${profileErrors.name ? 'error' : ''}`}
                   placeholder="Seu nome completo"
+                  disabled={saving}
                 />
                 {profileErrors.name && <span className="error-message">{profileErrors.name}</span>}
               </div>
@@ -167,6 +226,7 @@ const SettingsPage = () => {
                   onChange={(e) => handleProfileChange('phone', e.target.value)}
                   className="form-input"
                   placeholder="(XX) 9XXXX-XXXX"
+                  disabled={saving}
                 />
               </div>
 
@@ -196,6 +256,7 @@ const SettingsPage = () => {
                   onChange={(e) => handlePasswordChange('currentPassword', e.target.value)}
                   className={`form-input ${passwordErrors.currentPassword ? 'error' : ''}`}
                   placeholder="Digite sua senha atual"
+                  disabled={saving}
                 />
                 {passwordErrors.currentPassword && (
                   <span className="error-message">{passwordErrors.currentPassword}</span>
@@ -210,6 +271,7 @@ const SettingsPage = () => {
                   onChange={(e) => handlePasswordChange('newPassword', e.target.value)}
                   className={`form-input ${passwordErrors.newPassword ? 'error' : ''}`}
                   placeholder="Digite sua nova senha"
+                  disabled={saving}
                 />
                 {passwordErrors.newPassword && (
                   <span className="error-message">{passwordErrors.newPassword}</span>
@@ -224,6 +286,7 @@ const SettingsPage = () => {
                   onChange={(e) => handlePasswordChange('confirmPassword', e.target.value)}
                   className={`form-input ${passwordErrors.confirmPassword ? 'error' : ''}`}
                   placeholder="Confirme sua nova senha"
+                  disabled={saving}
                 />
                 {passwordErrors.confirmPassword && (
                   <span className="error-message">{passwordErrors.confirmPassword}</span>
@@ -244,8 +307,8 @@ const SettingsPage = () => {
 
           {/* Display Settings Section */}
           <div className="settings-section">
-            <h2>Configurações de Exibição</h2>
-            <p className="section-description">Gerencie suas preferências de conteúdo</p>
+            <h2>Configurações de Preferências</h2>
+            <p className="section-description">Gerencie suas preferências de conteúdo e comunicação</p>
 
             <div className="toggle-group">
               <div className="toggle-item">
@@ -258,6 +321,23 @@ const SettingsPage = () => {
                   className={`toggle-button ${settings.showExplicitContent ? 'active' : ''}`}
                   onClick={handleToggleExplicitContent}
                   disabled={saving}
+                  title={settings.showExplicitContent ? 'Desativar conteúdo explícito' : 'Ativar conteúdo explícito'}
+                >
+                  <span className="toggle-slider"></span>
+                </button>
+              </div>
+
+              <div className="toggle-item">
+                <div className="toggle-info">
+                  <h3>Newsletter</h3>
+                  <p>Receber recomendações de jogos e ofertas especiais por email.</p>
+                </div>
+                <button
+                  type="button"
+                  className={`toggle-button ${settings.newsletter ? 'active' : ''}`}
+                  onClick={handleToggleNewsletter}
+                  disabled={saving}
+                  title={settings.newsletter ? 'Desativar newsletter' : 'Ativar newsletter'}
                 >
                   <span className="toggle-slider"></span>
                 </button>

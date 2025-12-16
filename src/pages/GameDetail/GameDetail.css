@@ -568,3 +568,111 @@
 .image-thumbnails::-webkit-scrollbar-thumb:hover {
   background: #2980b9;
 }
+
+.spinner {
+  border: 3px solid rgba(52, 73, 94, 0.3);
+  border-top: 3px solid #3498db;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 1rem auto;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Button styles from Browse.css */
+.clear-filters-btn {
+  background: linear-gradient(45deg, #3498db, #2980b9);
+  color: white;
+  border: none;
+  padding: 0.8rem 1.5rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.clear-filters-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+}
+
+/* Disabled button states */
+.quantity-controls button:disabled {
+  background: #95a5a6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.quantity-controls button:disabled:hover {
+  background: #95a5a6;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Wishlist Button */
+.wishlist-btn-detail {
+  flex: 1;
+  padding: 1rem 1.5rem;
+  border: none;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 140px;
+  background: #34495e;
+  color: #ecf0f1;
+  border: 2px solid #9b59b6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.wishlist-btn-detail:hover:not(:disabled) {
+  background: #9b59b6;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(155, 89, 182, 0.4);
+}
+
+.wishlist-btn-detail.in-wishlist {
+  background: #9b59b6;
+  color: white;
+}
+
+.wishlist-btn-detail.in-wishlist:hover:not(:disabled) {
+  background: #8e44ad;
+}
+
+.wishlist-btn-detail:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Update purchase buttons container for 3 buttons */
+.purchase-buttons {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.wishlist-btn-detail {
+  grid-column: span 2; /* Make wishlist button take full width on its own row */
+}
+
+@media (max-width: 768px) {
+  .purchase-buttons {
+    grid-template-columns: 1fr;
+  }
+  
+  .wishlist-btn-detail {
+    grid-column: span 1;
+  }
+}

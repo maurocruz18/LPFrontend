@@ -12,9 +12,9 @@ import Register from '../pages/Register/Register';
 // Import Main Pages
 import Home from '../pages/Home/Home';
 import Browse from '../pages/Browse/Browse';
-import GameDetail from '../pages/GameDetail/GameDetail';
+import GameDetailsPage from '../pages/GameDetail/GameDetail';
 import Settings from '../pages/Settings/Settings';
-import Wishlist from '../pages/Wishlist/Wishlist';
+import WishlistPage from '../pages/Wishlist/Wishlist';
 import OwnedGames from '../pages/OwnedGames/OwnedGames';
 
 // Import Protected Route
@@ -35,7 +35,7 @@ function AppRoutes() {
           <Route path="/" element={<Home />} />
           <Route path="/browse" element={<Browse />} />
           <Route path="/games" element={<Browse />} />
-          <Route path="/game/:id" element={<GameDetail />} />
+          <Route path="/game/:id" element={<GameDetailsPage/>} />
           
           {/* Protected Routes */}
           <Route 
@@ -50,7 +50,7 @@ function AppRoutes() {
             path="/wishlist" 
             element={
               <ProtectedRoute>
-                <Wishlist />
+                <WishlistPage/>
               </ProtectedRoute>
             } 
           />

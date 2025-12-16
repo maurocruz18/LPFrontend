@@ -20,8 +20,8 @@ export const AuthProvider = ({ children }) => {
 
   const verifyToken = async () => {
     try {
-      const response = await authService.getMe();
-      const userData = response.data.data;
+      const response = await authService.getMe(); // This should call /auth/me
+      const userData = response.data.data; // Note: response.data.data from Postman
       setUser(userData);
       localStorage.setItem('user', JSON.stringify(userData));
     } catch (err) {
@@ -116,6 +116,31 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const updateSettings = async (settingsData) => {
+    try {
+      setError(null);
+      const response = await authService.updateSettings(settingsData);
+      
+      // Atualizar o user com as novas settings
+      const updatedUser = {
+        ...user,
+        settings: {
+          ...user.settings,
+          ...settingsData
+        }
+      };
+      
+      setUser(updatedUser);
+      localStorage.setItem('user', JSON.stringify(updatedUser));
+      
+      return response.data;
+    } catch (err) {
+      const errorMessage = err.response?.data?.message || 'Erro ao atualizar configurações';
+      setError(errorMessage);
+      throw err;
+    }
+  };
+
   const value = {
     user,
     token,
@@ -126,6 +151,7 @@ export const AuthProvider = ({ children }) => {
     logout,
     updateProfile,
     changePassword,
+    updateSettings,
   };
 
   return (
